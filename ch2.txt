@@ -1,0 +1,4 @@
+https://epg.iptvx.one/api/id/31-kanal-chelyabinsk.json
+https://epg.iptvx.one/api/id/ural1.json
+https://epg.iptvx.one/api/id/otv-chelyabinsk.json
+https://epg.iptvx.one/api/id/vostochnyj-ekspress.json
