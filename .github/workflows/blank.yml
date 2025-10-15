@@ -13,10 +13,13 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        # Используйте последнюю версию для лучшей совместимости
+        uses: actions/checkout@v4 
     
       - name: Run mkepg.sh
         run: |
+          # Включение вывода ошибок shell (-e) уже должно быть в bash,
+          # но явное указание помогает.
           bash mkepg.sh > epgm.xml
     
       - name: Archive epgm.xml
@@ -24,8 +27,22 @@ jobs:
           
       - name: Commit and push changes
         run: |
+          # 1. Настройка пользователя
           git config user.name github-actions
           git config user.email your-email@example.com
-          git add epgm.xml.gz
-          git commit -m "Convert JSON to XMLTV and archive"
-          git push
+          
+          # 2. Проверка, есть ли что-то для коммита
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Нет изменений для коммита. Выход."
+          else
+            # 3. Добавление и коммит изменений
+            git add epgm.xml.gz
+            git commit -m "Convert JSON to XMLTV and archive"
+            
+            # 4. ОБЯЗАТЕЛЬНЫЙ ШАГ: Получить последние изменения перед отправкой
+            # Это решает проблему "rejected push"
+            git pull origin main --rebase 
+            
+            # 5. Отправка изменений
+            git push
+          fi
