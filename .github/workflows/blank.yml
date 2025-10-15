@@ -26,23 +26,25 @@ jobs:
         run: gzip -f epgm.xml
           
       - name: Commit and push changes
-        run: |
-          # 1. Настройка пользователя
-          git config user.name github-actions
-          git config user.email your-email@example.com
-          
-          # 2. Проверка, есть ли что-то для коммита
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "Нет изменений для коммита. Выход."
-          else
-            # 3. Добавление и коммит изменений
-            git add epgm.xml.gz
-            git commit -m "Convert JSON to XMLTV and archive"
-            
-            # 4. ОБЯЗАТЕЛЬНЫЙ ШАГ: Получить последние изменения перед отправкой
-            # Это решает проблему "rejected push"
-            git pull origin main --rebase 
-            
-            # 5. Отправка изменений
-            git push
-          fi
+              run: |
+                # 1. Настройка пользователя
+                git config user.name github-actions
+                git config user.email your-email@example.com
+                
+                # 2. Проверка, есть ли что-то для коммита
+                # Использование `git diff --exit-code` более надежно для проверки изменений
+                if git diff --exit-code epgm.xml.gz; then
+                  echo "Файл epgm.xml.gz не изменился. Пропуск коммита и push."
+                  exit 0 # Выход из шага без ошибки
+                fi
+                
+                # 3. Добавление и коммит изменений
+                git add epgm.xml.gz
+                git commit -m "Convert JSON to XMLTV and archive"
+                
+                # 4. РЕШЕНИЕ КОНФЛИКТА: Pull, используя стратегию "theirs" для конфликтов
+                # Эта стратегия слияния (merge) предпочтительнее для бинарных файлов в CI
+                git pull origin main --no-edit -X theirs
+                
+                # 5. Отправка изменений
+                git push
