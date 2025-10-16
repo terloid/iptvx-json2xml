@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 2 * * *'  # Каждый день в 02:00 UTC
+    - cron: '0 22 * * *'  # Каждый день в 22:00 UTC
 
 jobs:
   run_script:
